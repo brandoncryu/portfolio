@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Bouncy Balls</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <div class="container-flexible mx-auto">
+        <div class="row">
+            <div class="canvasContainer">
+                <canvas id="myCanvas" width="480" height="320"></canvas>
+                
+                <button type="button" id="stopButton" class="btn fa fa-play"></button>
+                <button type="button" id="addButton" class="btn">Add Ball</button>
+                <h1>Ball Speed Controller</h1>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="ballSpeedController">
+                </div>
+            </div>
+    
+            <div class="sideBar">
+                <ul id="dynamic-list">
+                    <button id="1" onclick="removeItem(event)">1</button>
+                </ul>
+            </div>
+        </div>
+    </div>
+   
+
+    <style>
+        .canvasContainer {
+            margin-left: 200px;
+            padding: 1px 16px;
+            height: 1000px;
+        }
+
+        .sideBar {
+            height: 100%;
+            width: 140px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color:lightblue;
+            overflow-x: hidden;
+            padding-top: 16px;
+        }
+        .sideBar button {
+            background-color: #4CAF50; /* Green background */
+            border: 1px solid green; /* Green border */
+            color: white; /* White text */
+            padding: 10px 24px; /* Some padding */
+            cursor: pointer; /* Pointer/hand icon */
+            width: 50%; /* Set a width if needed */
+            display: block; /* Make the buttons appear below each other */
+        }
+
+        .sideBar button:not(:last-child) {
+            border-bottom: none; /* Prevent double borders */
+        }
+
+        /* Add a background color on hover */
+        .sideBar button:hover {
+            background-color: #3e8e41;
+        }
+
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            position:relative;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            
+        }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+        background-color: RoyalBlue;
+        }
+        .slidecontainer {
+        width: 100%;
+        }
+        
+        .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+        }
+        
+        .slider:hover {
+        opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #4CAF50;
+        cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #4CAF50;
+        cursor: pointer;
+        }
+    </style>
+
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+        var ballRadius = 10;
+        var isActive = true;
+        var stopButton = document.getElementById("stopButton");
+        var addButton = document.getElementById("addButton");
+        var slider = document.getElementById("ballSpeedController");
+        var speedVariable = slider.value;
+        var ballCount = 1;
+        var balls = 
+        [   
+            {
+                x: canvas.width/2,
+                y: canvas.height-30,
+                dx: Math.floor(Math.random() * 10),
+                dy: -1*Math.floor(Math.random() * 10),
+                color: getRandomColor()
+            }
+        ];
+
+        slider.oninput = function() {
+        speedVariable = this.value;
+        }
+
+        stopButton.onclick = function() {stopButtonPressed()};
+        addButton.onclick = function() {addButtonPressed()};
+
+        draw();
+        
+        function addItem(color){
+            var ul = document.getElementById("dynamic-list");
+            var listButton = document.createElement("button");
+            listButton.setAttribute('id',ballCount);
+            listButton.setAttribute('onclick','removeItem(event)');
+            listButton.appendChild(document.createTextNode(ballCount));
+            ul.appendChild(listButton);
+        }
+
+        function removeItem(ev){
+            var parentNode = document.getElementById("dynamic-list");
+            var children = parentNode.children;
+            var candidate = ev.target;
+            var index =  Array.prototype.indexOf.call(children, candidate);
+            parentNode.removeChild(candidate);
+            balls.splice(index-1, 1)
+        }
+
+        function addButtonPressed() {
+            balls.push(
+                {
+                    x: canvas.width/2,
+                    y: canvas.height-30,
+                    dx: Math.floor(Math.random() * 10),
+                    dy: -1*Math.floor(Math.random() * 10),
+                    color: getRandomColor()
+                }
+            );
+            ballCount++
+            addItem(toString(ballCount))
+        }
+
+        function stopButtonPressed() {
+            stopButton.classList.toggle("fa-pause");
+            if (isActive) {
+                isActive = false;
+            } 
+            else {
+                isActive = true;
+            }
+        }
+
+        function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+        }
+
+
+        function drawBall(ball){
+            var ballX = ball.x;
+            var ballY = ball.y;
+            var ballDx = ball.dx;
+            var ballDy = ball.dy;
+            var ballColor = ball.color;
+
+            renderBall(ballX ,ballY , ballColor);
+
+            if (isActive) {
+                ball.x = ballX + ballDx*speedVariable;
+                ball.y = ballY + ballDy*speedVariable;
+            }
+            if(ballX + ballDx*speedVariable > canvas.width-ballRadius || ballX + ballDx*speedVariable < ballRadius) {
+                ball.dx = -ballDx;
+            }
+            if(ballY + ballDy*speedVariable < ballRadius||ballY + ballDy*speedVariable > canvas.height-ballRadius) {
+                ball.dy = -ballDy;
+            }
+        }
+
+        function renderBall(x, y, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            balls.forEach(drawBall);
+            requestAnimationFrame(draw);
+        }
+    </script>
+</body>
+</html>
