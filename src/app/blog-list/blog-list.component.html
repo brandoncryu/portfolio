@@ -1,8 +1,16 @@
-<div class="container" style="margin-top: 70px;">
-    <ul class="list-group">
-        <li class= "list-group-item" *ngFor="let blog of blogs" [routerLink]="[blog.url]">
-            <h4 class="list-group-item-title"> {{ blog.name}}</h4>
-            <p class="list-group-item-description"> {{blog.description}} </p>
-        </li>
-</ul>
 
+<div class="container vertical-center">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <ul class="list-group" >
+                <li class= "list-group-item" *ngFor="let blog of blogs" [routerLink]="[blog.url]">
+                    <h4 class="list-group-item-title"> {{ blog.name}}</h4>
+                    <p class="list-group-item-description"> {{blog.description}} </p>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
