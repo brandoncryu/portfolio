@@ -1,38 +1,29 @@
-<!DOCTYPE html>
-<html>
 <head>
-    <meta charset="utf-8" />
-    <title>Bouncy Balls</title>
-    <style>
-    	* { padding: 0; margin: 0; }
-    	canvas { background: #eee; display: block; margin: 0 auto; }
-    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
 
-        <div class="canvasContainer">
+    <div class="container">
+        <div class="row">
+            <div class="canvasContainer">
+                <canvas id="myCanvas" width="480" height="320"></canvas>
+                <button type="button" id="stopButton" class="btn fa fa-play"></button>
+                <button type="button" id="addButton" class="btn">Add Ball</button>
+                <h3>Ball Speed Controller</h3>
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="ballSpeedController">
+                </div>
+            </div>
 
-            <canvas id="myCanvas" width="480" height="320"></canvas>
-            
-            <button type="button" id="stopButton" class="btn fa fa-play"></button>
-            <button type="button" id="addButton" class="btn">Add Ball</button>
-            <h1>Ball Speed Controller</h1>
-            <div class="slidecontainer">
-                <input type="range" min="1" max="10" value="5" class="slider" id="ballSpeedController">
+            <div class="sideBar">
+                <ul id="dynamic-list">
+                    <button id="1" onclick="removeItem(event)">1</button>
+                </ul>
             </div>
         </div>
-    
-        <div class="sideBar">
-            <ul id="dynamic-list">
-                <button id="1" onclick="removeItem(event)">1</button>
-            </ul>
-        </div>
 
-    
-
-
+    </div>
 
     <script>
         var canvas = document.getElementById("myCanvas");
@@ -44,51 +35,51 @@
         var slider = document.getElementById("ballSpeedController");
         var speedVariable = slider.value;
         var ballCount = 1;
-        var balls = 
-        [   
-            {
-                x: canvas.width/2,
-                y: canvas.height-30,
-                dx: Math.floor(Math.random() * 10),
-                dy: -1*Math.floor(Math.random() * 10),
-                color: getRandomColor()
-            }
-        ];
+        var balls =
+            [
+                {
+                    x: canvas.width / 2,
+                    y: canvas.height - 30,
+                    dx: Math.floor(Math.random() * 10),
+                    dy: -1 * Math.floor(Math.random() * 10),
+                    color: getRandomColor()
+                }
+            ];
 
-        slider.oninput = function() {
-        speedVariable = this.value;
+        slider.oninput = function () {
+            speedVariable = this.value;
         }
 
-        stopButton.onclick = function() {stopButtonPressed()};
-        addButton.onclick = function() {addButtonPressed()};
+        stopButton.onclick = function () { stopButtonPressed() };
+        addButton.onclick = function () { addButtonPressed() };
 
         draw();
-        
-        function addItem(color){
+
+        function addItem(color) {
             var ul = document.getElementById("dynamic-list");
             var listButton = document.createElement("button");
-            listButton.setAttribute('id',ballCount);
-            listButton.setAttribute('onclick','removeItem(event)');
+            listButton.setAttribute('id', ballCount);
+            listButton.setAttribute('onclick', 'removeItem(event)');
             listButton.appendChild(document.createTextNode(ballCount));
             ul.appendChild(listButton);
         }
 
-        function removeItem(ev){
+        function removeItem(ev) {
             var parentNode = document.getElementById("dynamic-list");
             var children = parentNode.children;
             var candidate = ev.target;
-            var index =  Array.prototype.indexOf.call(children, candidate);
+            var index = Array.prototype.indexOf.call(children, candidate);
             parentNode.removeChild(candidate);
-            balls.splice(index-1, 1)
+            balls.splice(index - 1, 1)
         }
 
         function addButtonPressed() {
             balls.push(
                 {
-                    x: canvas.width/2,
-                    y: canvas.height-30,
+                    x: canvas.width / 2,
+                    y: canvas.height - 30,
                     dx: Math.floor(Math.random() * 10),
-                    dy: -1*Math.floor(Math.random() * 10),
+                    dy: -1 * Math.floor(Math.random() * 10),
                     color: getRandomColor()
                 }
             );
@@ -100,46 +91,46 @@
             stopButton.classList.toggle("fa-pause");
             if (isActive) {
                 isActive = false;
-            } 
+            }
             else {
                 isActive = true;
             }
         }
 
         function getRandomColor() {
-        var letters = '0123456789ABCDEF';
-        var color = '#';
-        for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
         }
 
 
-        function drawBall(ball){
+        function drawBall(ball) {
             var ballX = ball.x;
             var ballY = ball.y;
             var ballDx = ball.dx;
             var ballDy = ball.dy;
             var ballColor = ball.color;
 
-            renderBall(ballX ,ballY , ballColor);
+            renderBall(ballX, ballY, ballColor);
 
             if (isActive) {
-                ball.x = ballX + ballDx*speedVariable;
-                ball.y = ballY + ballDy*speedVariable;
+                ball.x = ballX + ballDx * speedVariable;
+                ball.y = ballY + ballDy * speedVariable;
             }
-            if(ballX + ballDx*speedVariable > canvas.width-ballRadius || ballX + ballDx*speedVariable < ballRadius) {
+            if (ballX + ballDx * speedVariable > canvas.width - ballRadius || ballX + ballDx * speedVariable < ballRadius) {
                 ball.dx = -ballDx;
             }
-            if(ballY + ballDy*speedVariable < ballRadius||ballY + ballDy*speedVariable > canvas.height-ballRadius) {
+            if (ballY + ballDy * speedVariable < ballRadius || ballY + ballDy * speedVariable > canvas.height - ballRadius) {
                 ball.dy = -ballDy;
             }
         }
 
         function renderBall(x, y, color) {
             ctx.beginPath();
-            ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.closePath();
@@ -152,4 +143,3 @@
         }
     </script>
 </body>
-</html>
